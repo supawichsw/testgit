@@ -5,7 +5,7 @@ import os
 def sendorderCSV(Typeorder,Pair,Takeprofit,Filename,Ticket=0):
     df = pd.DataFrame({'': [Typeorder + ',' + Pair + ',' + str(Takeprofit) + ',' + str(Ticket)]})
     df.to_csv(Filename, header=None, index=None, sep=' ')
-Filename = "/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/LastSignal2.csv"
+Filename = "/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/LastSignal.csv"
 
 sendorderCSV("Buy","XAUUSDm",1300,Filename)
 
