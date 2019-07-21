@@ -61,13 +61,14 @@ def Takeprofit(Trend,lowlisthour,highlisthour,lowlistday,highlistday,tickclose,o
     if Trend=="down":
 
         if tickclose>min(lowlisthour) :
-
+            h = min(i for i in lowlisthour if i > tickclose and i - tickclose > 2)
             print(lowlisthour)
             low1 = min(lowlisthour, key=lambda y: tickclose < y )#  abs(y - tickclose) )
             print(min(lowlisthour),"lowlist")
             lowarray.append(low1)
         low2 = None
         k2=lowlistday[-1]
+        if tickclose<min(l):
         while (low2==None):
             j = -1
             print(k2,"k2")
@@ -128,7 +129,7 @@ def Takeprofit(Trend,lowlisthour,highlisthour,lowlistday,highlistday,tickclose,o
                     k = k - 1
 
             else:
-                high2= min(highpricearray,key=lambda y:tickclose>y)
+                high2= min(highpricearray,key=lambda y:tickclose>y and y-tickclose >3)# ติดที่ตรงนี้
                 maxarray.append(high2)
         high = min(maxarray, key=lambda y: abs(y - tickclose))
         if high==high2:

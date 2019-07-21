@@ -3,6 +3,7 @@ import CsvReader
 import orderdict
 import Linenotify
 import test2
+import os
 import numpy
 class breakout():
 
@@ -10,7 +11,8 @@ class breakout():
         self.Pair=Pair
 
         self.Order=[]
-
+        self.lasthigh=lasthigh
+        self.lastlow=lastlow
         self.orderID=0
         self.lasttrend=Trend[-1]
         self.lasttrend2=Trend[-2]
@@ -33,12 +35,20 @@ class breakout():
         self.lastdiff=diff[-1]
         self.HighTP=-1
         self.LowTP=-1
+        self.High=0
+        self.Low=0
         self.ATR2=ATR[-2]
+        self.openbuy=0
+        self.opensell=0
+        self.Order=[]
 
 
 
 
-    def ATRtick(self,sdlow,sdhigh,tickclose,tickopen,Order,ticklow,tickhigh,tickATR):#ใช้กับ tick data เป็น tick trend tick close
+
+    def ATRtick(self,sdlow,sdhigh,tickclose,tickopen,Order,ticklow,tickhigh,tickATR,sdlowday,sdhighday):#ใช้กับ tick data เป็น tick trend tick close
+        self.Order=Order
+
         sellmodify=False
         buymodify=False
         s1=0
@@ -48,8 +58,13 @@ class breakout():
         SELLoldTP=[]
         BUYoldTP=[]
         tickdiff=abs(tickhigh-ticklow)
+        if self.lasthigh>tickhigh:
+            Lasthigh=self.lasthigh
+        elif self.lasthigh<tickhigh:
+            Lasthigh=tickhigh
 
-        if self.lasttrend=="up" and tickclose<sdlow and tickATR>self.ATR and abs(tickclose-tickopen)*2>abs(self.diffopenclose):
+
+        if self.lasttrend=="up" and tickclose<sdlowday and tickATR>self.ATR and abs(tickclose-tickopen)*2>abs(self.diffopenclose):
             print("sell is opened kuy rai")
             print(self.lasttrend,"kuy rai ar")
             sellorder=True
@@ -59,7 +74,7 @@ class breakout():
 
                 #send
 
-        elif self.lasttrend=="down" and tickclose>sdhigh and tickATR>self.ATR and abs(tickclose-tickopen)*2>abs(self.diffopenclose):
+        elif self.lasttrend=="down" and tickclose>sdhighday and tickATR>self.ATR and abs(tickclose-tickopen)*2>abs(self.diffopenclose):
             print("buy is opened")
             buyorder=True
 
@@ -95,7 +110,7 @@ class breakout():
                         sellmodify=True
 
 
-                    if tickclose>sdhigh or (tickdiff>self.lastdiff and tickclose<tickopen and tickclose>=ticklow+(0.3*(tickopen-ticklow)) )or (self.lastdiff<0.3*self.meandiff and self.ATR2>self.ATR): #or (self.lasttrend!="down")  :#trailing profit มาจาก if tickclose<tickopen and tickclose>=ticklow+0.3(tickopen-ticklow)
+                    if tickclose>sdhigh or (tickdiff>self.lastdiff and tickclose<tickopen and tickclose>=ticklow+(0.3*(tickopen-ticklow)) )or (self.lastdiff<0.3*self.meandiff and self.ATR2>self.ATR) : #or (self.lasttrend!="down")  :#trailing profit มาจาก if tickclose<tickopen and tickclose>=ticklow+0.3(tickopen-ticklow)
                         if tickclose>sdhigh:
                             print("1 sell")
                         if tickclose<tickopen and tickclose>=ticklow+(0.3*(tickopen-ticklow)) :
@@ -115,7 +130,7 @@ class breakout():
 
 
 
-                    if  tickclose<sdlow or (tickdiff>self.lastdiff and tickclose>tickopen and tickclose<=tickhigh-(0.3*(tickhigh-tickopen))) or (self.lastdiff<0.3*self.meandiff and self.ATR2>self.ATR):# or #(self.lasttrend!="up")  :
+                    if  tickclose<sdlow or (tickdiff>self.lastdiff and tickclose>tickopen and tickclose<=tickhigh-(0.3*(tickhigh-tickopen))) or (self.lastdiff<0.3*self.meandiff and self.ATR2>self.ATR) or self.lastesthigh:# or #(self.lasttrend!="up")  :
                         if tickclose<sdlow:
                             print("1 buy")
                         if tickclose>tickopen and tickclose<=tickhigh-(0.3*(tickhigh-tickopen)):
@@ -125,8 +140,9 @@ class breakout():
                         if self.lasttrend!=self.lasttrend2:
                             print("4 buy",self.lasttrend,self.lasttrend2)
                         msg = "CLOSE: Buy order " + self.Pair
-
                         Linenotify.Linenotify(msg)
+                        os.remove('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/Orders.csv')
+
 
 
         print(sellorder,"order and ",buyorder,"order")
@@ -138,6 +154,7 @@ class breakout():
                                    self.highlist2["day"][-1])
             self.LowTP=low
             if s1<2 and sellorder :
+                self.LowTP
                 msg="Open sell order "+self.Pair+"New TP: "+low
                 Linenotify.Linenotify(msg)
 
@@ -147,20 +164,26 @@ class breakout():
 
 
 
-        elif buyorder or buymodify:
+        elif buyorder or buymodify :
             print(self.lowlist2["day"],"day")
-            High,Type = test2.Takeprofit("up", self.lowlist2["hour"], self.highlist2["hour"], self.lowlist2["day"],
+            self.High,Type = test2.Takeprofit("up", self.lowlist2["hour"], self.highlist2["hour"], self.lowlist2["day"],
                                    self.highlist2["day"], tickclose, self.lowlist2["day"][-1],
                                    self.highlist2["day"][-1])
-            self.HighTP = High
-            if s2<2 and buyorder:
-                msg = "Open buy order " + self.Pair + "New TP: " + str(High)
+
+            if s2<2 and buyorder and self.HighTP!=self.High:
+                self.HighTP = self.High
+                msg = "Open buy order " + self.Pair + "New TP: " + str(self.High)
                 Linenotify.Linenotify(msg)
 
-            if buymodify:
+            if buymodify  and self.HighTP!=self.High:
+                self.HighTP = self.High
                 if s2==2:
-                    msg = "Modify BUY order " + self.Pair + "New TP: " + High+" Close another buy"
+                    msg = "Modify BUY order " + self.Pair + "New TP: " + str(self.High)+" Close another buy"
                     Linenotify.Linenotify(msg)
+                elif s2==1:
+                    msg= "Modify BUY order " + self.Pair + "New TP: " + str(self.High)
+                    Linenotify.Linenotify(msg)
+
 
 
 

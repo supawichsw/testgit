@@ -22,12 +22,10 @@ def sendorder(Pair):
     oldday=-1
     while True:
 
-        r=os.path.exists('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/BTCUSDmDataDay.csv')
-        print(r)
 
-        if os.path.exists('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/BTCUSDmDataDay.csv'):
+        if os.path.exists('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/XAUUSDmDataDay.csv'):
 
-            dfday = pd.read_csv('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/BTCUSDmDataDay.csv')
+            dfday = pd.read_csv('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/XAUUSDmDataDay.csv')
             highday = dfday["HIGH"].tolist()
             lowday = dfday["LOW"].tolist()
 
@@ -41,9 +39,10 @@ def sendorder(Pair):
             print(d.lowseries)
 
 
+
             #os.remove('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/BTCUSDmDataDay.csv')
-        if os.path.exists('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/BTCUSDmDataHour.csv'):
-            dfhour = pd.read_csv('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/BTCUSDmDataHour.csv')
+        if os.path.exists('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/XAUUSDmDataHour.csv'):
+            dfhour = pd.read_csv('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/XAUUSDmDataHour.csv')
             highhour=dfhour["HIGH"].tolist()
             lowhour=dfhour["LOW"].tolist()
             openlist = dfhour["OPEN"].tolist()
@@ -78,10 +77,13 @@ def sendorder(Pair):
             Takeprofit = orders["Takeprofit"]
 
             for i, j, k in zip(Typeorder, symbol, Takeprofit):
-                Order.append([i, j, k])
+                if j=="XAUUSDm":
+                    Order.append([i, j, k])
+
+
             print(Order,"Total Order")
 
-        dftick=pd.read_csv('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/BTCUSDmTick.csv')
+        dftick=pd.read_csv('/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/XAUUSDmTick.csv')
 
         tickhigh = dftick["High"].tolist()
         ticklow = dftick["Low"].tolist()
@@ -91,9 +93,11 @@ def sendorder(Pair):
 
 
 
-
+        sdlowday,sdhighday,trendday=d.tickcheck()
         sdlow, sdhigh,trend = c.tickcheck()
+
         breakout1.ATRtick(sdlow,sdhigh,tickclose[0],tickopen[0],Order,ticklow[0],tickhigh[0],tickATR[0])
+        print(sdlow,"sdlowww")
         print(c.lowseries)
         print(c.highseries)
         print(c.meanlist)

@@ -1,12 +1,7 @@
-tickdiff=[1,2,3]
-s=list(reversed(sorted(tickdiff)))
-print(s)
-n=None
-array=[]
-array.append(n)
-array.append(tickdiff)
+meandiff=8
+tickdiff=16
 
-i=3
-if i>2:
-    print("kuy")
-    print(i)
+Difffactor=(1 if tickdiff<=meandiff else ((meandiff-tickdiff)/meandiff))
+print(Difffactor)
+Difffactor=Difffactor-1
+print(Difffactor)

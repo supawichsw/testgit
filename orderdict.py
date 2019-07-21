@@ -33,6 +33,7 @@ class checker():
         self.listA=a
         self.listB=b
         self.oldhigh = a[0]
+        self.lastk=0
         self.oldlow = b[0]
     def check(self):
         s=time.time()
@@ -79,26 +80,35 @@ class checker():
 
 
             elif self.k!=self.oldk:
+                print(self.k,"adsdsadas")
                 if self.oldk=="up":
-                    self.sdhigh, self.sdlow, k = Trendline(self.meanlist, self.updiff)
 
-                    if  j>self.sdlow or (len(self.lowseries)>0 and i<self.lastsdhigh+0.2*k and j<self.lowseries[-1]):
+                    self.sdhigh, self.sdlow, k = Trendline(self.meanlist, self.updiff)
+                    print(k,"this is k")
+
+                    if  j>self.sdlow or (len(self.lowseries)>0 and  i<self.lastsdhigh+0.2*self.lastk and j>self.lowseries[-1]):
+                        print("dsakldsakd;lkasl;dsa")
                         self.updiff.append(diff)
                         c=False#(self.sdlow<self.lastsdhigh and self.sdlow>self.lastsdlow)  :
                         self.k="up"
 
                     elif j <self.sdlow   :
+                        print("dkasldk;askdl;as")
                         self.highseries.append(self.oldhigh)
                         self.meanlist = [self.meanlist[-1], mean]
                         self.updiff = []
                         self.lastsdhigh = self.sdhigh
                         self.lastsdlow = self.sdlow
-
+                        self.lastk=k
 
                 if self.oldk == "down" :
                     self.sdhigh, self.sdlow, k = Trendline(self.meanlist, self.downdiff)
-
-                    if  i<self.sdhigh or (len(self.highseries)>0 and j>self.lastsdlow-0.2*k and i<self.highseries[-1]) :
+                    print(k, "this is k")
+                    if (len(self.highseries)>0 and j>self.lastsdlow-0.2*self.lastk and i<self.highseries[-1]):
+                        print("dasdas")
+                    if  i<self.sdhigh or (len(self.highseries)>0 and j>self.lastsdlow-0.2*self.lastk and i<self.highseries[-1]) :
+                        print(self.lastk,"sadlas;das;dksa;'dkl;sakd;lsa")
+                        print(self.sdhigh,"dasdsa")
                         print("downnnnn")
                         self.k="down"
                         self.downdiff.append(diff)
@@ -111,7 +121,8 @@ class checker():
                         self.downdiff=[]
                         self.lastsdhigh = self.sdhigh
                         self.lastsdlow=self.sdlow
-
+                        self.lastk=k
+            print(self.lastk,"last k")
             self.oldk=self.k
             print(self.highseries,"highseries")
             print(self.lowseries,"lowseries")
@@ -132,20 +143,22 @@ class checker():
         print(l)
         print(l-s,"diff time")
 
-    def tickcheck(self):
-        if self.oldk=="down":
-            listdiff=self.downdiff
-        elif self.oldk=="up":
-            listdiff=self.updiff
-        k = numpy.std(listdiff)
-        sdhigh=self.oldhigh+(0.3*k)
-        sdlow=self.oldlow-(0.3*k)
+    def tickcheck(self,tickdiff):
+
+        k = numpy.std(self.difflist)
+        meandiff=numpy.mean(self.difflist)
+        Difffactor=(1 if tickdiff<=meandiff else tickdiff-meandiff/meandiff )
+
+
+        sdhigh=self.meanlist[-1]+(1*k)
+        sdlow=self.meanlist[-1]-(1*k)
         Trend=self.oldk
         print(self.oldk,"oldk")
 
 
 
         return sdlow, sdhigh, Trend
+
 '''''
         if self.oldk=="up" and high<self.oldhigh:
             SDhigh, SDlow, k=Trendline(self.meanlist,self.difflist)
@@ -176,9 +189,9 @@ class checker():
 if __name__ == '__main__':
     df = pd.read_csv(
         '/Applications/MT4.app/Contents/Resources/drive_c/Program Files (x86)/MetaTrader - EXNESS/MQL4/Files/XAUUSDmDataHour.csv')
-    Datahigh = df["HIGH"].iloc[78:97].tolist()
-    Datalow=df["LOW"].iloc[78:97].tolist()
-    ATR=df["ATR"].iloc[78:97].tolist()
+    Datahigh = df["HIGH"].iloc[49:61].tolist()
+    Datalow=df["LOW"].iloc[49:61].tolist()
+    ATR=df["ATR"].iloc[49:61].tolist()
     #print(ATR,"ATR")
     #Time=df["TIME"].iloc[54:64].tolist()
     #print(Time,"time")

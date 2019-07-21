@@ -9,4 +9,5 @@ def Linenotify(msg):
 
 
     requests.post(url, headers=headers , data = {'message':msg})
-
+msg=1.112323
+Linenotify(msg)
